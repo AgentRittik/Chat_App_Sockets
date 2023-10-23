@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=h1, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>                                              
+    <h1>Chat Box</h1>
+    <input id ="startchat" type="hidden" data-roomid ="<%= id %>"></input>
+    <input type="text" id='username' placeholder="username">                                                
+    <input type="text" id="newmsg" placeholder="message .. ">
+    <button id ="btn">Send</button>
+    <span id = "typing">typing ...</span>
+    <ul id="msglist">
+        <% for(let i = 0 ; i<chats.length ; i++){ %>
+            <li><%= chats[i].user %> : <%= chats[i].content %></li>
+        <% } %>
+    </ul>
+
+    <!-- <%= name %>
+    <%= id %> -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+        let startchat = document.getElementById('startchat');
+        let btn = document.getElementById('btn');
+        let inputmsg = document.getElementById("newmsg");
+        let msgList = document.getElementById("msglist");
+        let username = document.getElementById('username');
+        let spanTyping = document.getElementById('typing');
+        spanTyping.style.display = "none";
+        socket.emit("join_room" , {
+            roomid : startchat.getAttribute('data-roomid')
+        });
+
+        btn.onclick = function exec(){
+            socket.emit("msg_send" , {
+                msg : inputmsg.value,
+                username : username.value,
+                roomid : startchat.getAttribute('data-roomid')
+            });
+        }
+        socket.on('msg_recieved' , (data) => {
+            let liMsg = document.createElement('li');
+            liMsg.innerText = `${data.username} : ${data.msg}`;
+            msgList.appendChild(liMsg);
+        });
+
+        inputmsg.addEventListener("keypress" , function (e){
+            socket.emit("typing" , {
+                // username : username.value,
+                roomid : startchat.getAttribute('data-roomid')
+            });
+        });
+
+        socket.on('')
+        socket.on('')
+        socket.on('somebody_typing' , function exec(){
+            spanTyping.style.display = "block";
+        });
+
+  
+    </script>
+</body>
+</html>
